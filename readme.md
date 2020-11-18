@@ -25,31 +25,37 @@ The AWS Key disabler is a Lambda Function that disables AWS IAM User Access Keys
 
 ## Prerequisites
 
-This script requires the following components to run.
-* Node.js with NPM installed https://nodejs.org/en/
-* Gruntjs installed http://gruntjs.com/
-* AWSCLI commandline tool installed https://aws.amazon.com/cli/
+This script requires the following tools to run.
+* NPM installed https://nodejs.org/en/ - tested with version `6.14.8`
+* Gruntjs installed http://gruntjs.com/ - tested with version `grunt-cli v1.3.2`
+* AWSCLI commandline tool installed https://aws.amazon.com/cli/ - tested with version `aws-cli/2.0.58`
 
-It also assumes that you have an AWS account with SES enabled, ie domain verified and sandbox mode removed.
+It also assumes that you have an existing AWS account with SES (email) enabled. SES usage requires that you have a domain verified and sandbox mode removed.
 
-## Installation instructions
+## Installation Instructions
 
 These instructions are for OSX. Your mileage may vary on Windows and other \*nix.
 
-1. Grab yourself a copy of this script
+Before you start make sure that your AWSCLI configuration has been correctly setup with the right credentials and that it can authenitcate into your AWS account. Run the following command to check who it is authenticating as:
+
+```
+aws iam get-user
+``` 
+
+Make sure that this AWS IAM user has IAM admin priviledges - so that it can create the various AWS resources (Lambda, IAM, CloudWatch etc.) used by this project.
+
+1. Grab yourself a copy of this repo `git clone https://github.com/jeremycook123/aws-key-disabler-2020`
 2. Navigate into the `/grunt` folder
-3. Setup the Grunt task runner, e.g. install its deps: `npm install`
-4. Fill in the following information in `/grunt/package.json`
+3. Setup the Grunt task runner, e.g. install its dependencies - run `npm install`
+4. Update the configuration within the `/grunt/package.json`
 	1. Set the `aws_account_number` value to your AWS account id found on https://portal.aws.amazon.com/gp/aws/manageYourAccount
-	2. Set the `first_warning` and `last_warning` to the age that the key has to be in days to trigger a warning. These limits trigger an email send to `report_to`
-	3. Set the `expiry` to the age in days when the key expires. At this age the key is disabled and an email is triggered to `report_to` notifying this change
-	4. Set the `send_completion_report` value to `True` to enable email delivery via SES
-	5. Set the `report_to` value to the email address you'd like to receive deletion reports to
-	6. Set the `report_from` value to the email address you'd like to use as the sender address for deletion reports. Note that the domain for this needs to be verified in AWS SES.
-	7. Set the `deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
-		* See the AWS Region table for support https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/
-5. Ensure you can successfully connect to AWS from the CLI, eg run `aws iam get-user` to verify successful connection
-6. from the `/grunt` directory run `grunt bumpup && grunt deployLambda` to bump your version number and perform a build/deploy of the Lambda function to the selected region
+	2. Set the `first_warning` and `last_warning` to the age that the key has to be in days to trigger an email warning
+	3. Set the `expiry` to the age in days when the key expires. At this age the key is disabled 
+  4. Set `email.admin.enable` to `True` to send an email report to an administrator email address containing a full report of all IAM users and their key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address
+  5. Set `email.user.enable` to `True` to send an individual email to each IAM user - containing the information about whether their access key status and whether it is due to be expired or has been expired. Note: this only works for IAM accounts where the username is a valid email address. mail delivery is performed via AWS SES (make sure that it has been configured correctly).
+  6. Update the `email.from` to be a valid email address
+	7. Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
+5. From within the `/grunt` directory - run `grunt bumpup && grunt deployLambda` to bump your release version number and perform a build/deploy of the Lambda function to the selected region
 
 ## Invoke the Lambda Function manually from the commandline using the AWSCLI
 
