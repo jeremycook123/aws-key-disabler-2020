@@ -1,0 +1,5 @@
+lambda/build/*
+
+*/node_modules/*
+
+releases/*
