@@ -42,7 +42,7 @@ Before you start make sure that your AWSCLI configuration has been correctly set
 aws iam get-user
 ``` 
 
-Make sure that this AWS IAM user has IAM admin priviledges - so that it can create the various AWS resources (Lambda, IAM, CloudWatch etc.) used by this project.
+Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it can create the various AWS resources (Lambda, IAM, CloudWatch etc.) used by this project.
 
 1. Grab yourself a copy of this repo `git clone https://github.com/jeremycook123/aws-key-disabler-2020`
 2. Navigate into the `/grunt` folder
