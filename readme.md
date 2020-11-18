@@ -45,15 +45,9 @@ aws iam get-user
 Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it can create the various AWS resources (Lambda, IAM, CloudWatch etc.) used by this project.
 
 1. Grab yourself a copy of this repo `git clone https://github.com/jeremycook123/aws-key-disabler-2020`
-2. Navigate into the projects `grunt` folder:
-
-run `cd aws-key-disabler-2020/grunt`
-
-3. Setup the Grunt task runner, e.g. install its dependencies:
-
-run `npm install`
-  
-4. Update the configuration within the `/grunt/package.json`
+2. Navigate into the projects `grunt` folder: run `cd aws-key-disabler-2020/grunt`
+3. Setup the Grunt task runner, e.g. install its dependencies: run `npm install`
+4. Update the custom configuration within the `/grunt/package.json` file:
 
 * Update `key_disabler.aws_account_number` with your own AWS Account Id
 * Update `key_disabler.keystates.first_warning` and `key_disabler.keystates.last_warning` to the age that the key has to be in days to trigger an email warning
