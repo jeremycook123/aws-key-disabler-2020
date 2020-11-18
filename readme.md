@@ -49,9 +49,9 @@ Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it c
 3. Setup the Grunt task runner, e.g. install its dependencies - run `npm install`
 4. Update the configuration within the `/grunt/package.json`
 
-* Set the `aws_account_number` value to your AWS account id found on https://portal.aws.amazon.com/gp/aws/manageYourAccount
-* Set the `first_warning` and `last_warning` to the age that the key has to be in days to trigger an email warning
-* Set the `expiry` to the age in days when the key expires. At this age the key is disabled 
+* Update `key_disabler.aws_account_number` with your own AWS Account Id
+* Update `key_disabler.keystates.first_warning` and `key_disabler.keystates.last_warning` to the age that the key has to be in days to trigger an email warning
+* Update `key_disabler.keystates.expired` to the age in days when the key expires. At this age the key is disabled 
 * Set `email.admin.enable` to `True` to send an email report to an administrator email address containing a full report of all IAM users and their key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address
 * Set `email.user.enable` to `True` to send an individual email to each IAM user - containing the information about whether their access key status and whether it is due to be expired or has been expired. Note: this only works for IAM accounts where the username is a valid email address. mail delivery is performed via AWS SES (make sure that it has been configured correctly).
 * Update the `email.from` to be a valid email address
