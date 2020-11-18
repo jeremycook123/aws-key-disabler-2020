@@ -48,13 +48,15 @@ Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it c
 2. Navigate into the projects `grunt` folder, `cd aws-key-disabler-2020/grunt`
 3. Setup the Grunt task runner, e.g. install its dependencies - run `npm install`
 4. Update the configuration within the `/grunt/package.json`
-	1. Set the `aws_account_number` value to your AWS account id found on https://portal.aws.amazon.com/gp/aws/manageYourAccount
-	2. Set the `first_warning` and `last_warning` to the age that the key has to be in days to trigger an email warning
-	3. Set the `expiry` to the age in days when the key expires. At this age the key is disabled 
-  4. Set `email.admin.enable` to `True` to send an email report to an administrator email address containing a full report of all IAM users and their key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address
-  5. Set `email.user.enable` to `True` to send an individual email to each IAM user - containing the information about whether their access key status and whether it is due to be expired or has been expired. Note: this only works for IAM accounts where the username is a valid email address. mail delivery is performed via AWS SES (make sure that it has been configured correctly).
-  6. Update the `email.from` to be a valid email address
-	7. Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
+
+* Set the `aws_account_number` value to your AWS account id found on https://portal.aws.amazon.com/gp/aws/manageYourAccount
+* Set the `first_warning` and `last_warning` to the age that the key has to be in days to trigger an email warning
+* Set the `expiry` to the age in days when the key expires. At this age the key is disabled 
+* Set `email.admin.enable` to `True` to send an email report to an administrator email address containing a full report of all IAM users and their key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address
+* Set `email.user.enable` to `True` to send an individual email to each IAM user - containing the information about whether their access key status and whether it is due to be expired or has been expired. Note: this only works for IAM accounts where the username is a valid email address. mail delivery is performed via AWS SES (make sure that it has been configured correctly).
+* Update the `email.from` to be a valid email address
+* Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
+
 5. From within the `/grunt` directory - run `grunt bumpup && grunt deployLambda` to bump your release version number and perform a build/deploy of the Lambda function to the selected region
 
 ## Invoke the Lambda Function manually from the commandline using the AWSCLI
