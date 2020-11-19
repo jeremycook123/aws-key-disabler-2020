@@ -21,7 +21,7 @@ The AWS Key disabler is a Lambda Function that disables AWS IAM User Access Keys
 ## Features
 
 Can be configued to:
-* Email a warning message to any IAM user account whose access keys are about to expire or have been expired, refer to the `email.user` section within the `/grunt/package.json` build configuration file. The user's email address can be derived either from their *username*, or by specifying a named tag on the IAM user account:
+* Email a warning message to any IAM user account whose access keys are about to expire or have been expired, refer to the `email.user` section within the `/grunt/package.json` build configuration file. The user's email address can be derived either from their **username**, or by specifying a named tag on the IAM user account:
 
 **Tag** based email address config extract:
 ```
@@ -95,8 +95,8 @@ Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it c
   * Set `email.user.enabled` to `True` if you want to send an individual email to each IAM user - containing the information about their Access Key status and whether a particular key is due to be expired or has been expired.
 
     * Configure one of the following options:
-      * Set `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the tag name `email.user.emailaddressconfig.tagname` for this option.
-      * Set `email.user.emailaddressconfig.type` to `username` for username based email addresses
+      * Set `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the **tag** name `email.user.emailaddressconfig.tagname` for this option.
+      * Set `email.user.emailaddressconfig.type` to `username` for **username** based email addresses
 
   * Update the `email.from` to be a valid email address.
   * Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
