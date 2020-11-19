@@ -88,19 +88,19 @@ Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it c
 3. Setup the Grunt task runner, e.g. install its dependencies: run `npm install`
 4. Update the custom configuration within the `/grunt/package.json` file:
 
-* Replace `key_disabler.aws_account_number` with your own AWS Account Id.
-* Update `key_disabler.keystates.first_warning` and `key_disabler.keystates.last_warning` to the age that the key has to be in days to trigger an email warning.
-* Update `key_disabler.keystates.expired` to the age in days when the key expires. At this age the key is disabled.
-* Set `email.admin.enabled` to `True` if you want to send an email report to an administrator email address containing a full report of all IAM users and their Access Key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address.
-* Set `email.user.enabled` to `True` if you want to send an individual email to each IAM user - containing the information about their Access Key status and whether a particular key is due to be expired or has been expired.
+  * Replace `key_disabler.aws_account_number` with your own AWS Account Id.
+  * Update `key_disabler.keystates.first_warning` and `key_disabler.keystates.last_warning` to the age that the key has to be in days to trigger an email warning.
+  * Update `key_disabler.keystates.expired` to the age in days when the key expires. At this age the key is disabled.
+  * Set `email.admin.enabled` to `True` if you want to send an email report to an administrator email address containing a full report of all IAM users and their Access Key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address.
+  * Set `email.user.enabled` to `True` if you want to send an individual email to each IAM user - containing the information about their Access Key status and whether a particular key is due to be expired or has been expired.
 
-  * Configure one of the following options:
-    * Set `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the tag name `email.user.emailaddressconfig.tagname` for this option.
-    * Set `email.user.emailaddressconfig.type` to `username` for username based email addresses
+    * Configure one of the following options:
+      * Set `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the tag name `email.user.emailaddressconfig.tagname` for this option.
+      * Set `email.user.emailaddressconfig.type` to `username` for username based email addresses
 
-* Update the `email.from` to be a valid email address.
-* Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
-* Update the `lambda.schedule.expression` to be a valid cron job expression for when you want the Lambda function automatically triggered.
+  * Update the `email.from` to be a valid email address.
+  * Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
+  * Update the `lambda.schedule.expression` to be a valid cron job expression for when you want the Lambda function automatically triggered.
 
 5. From within the `/grunt` directory - run `grunt bumpup && grunt deployLambda` to bump your release version number and perform a build/deploy of the Lambda function to the selected region
 
