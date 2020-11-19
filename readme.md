@@ -18,7 +18,7 @@ The AWS Key disabler is a Lambda Function that disables AWS IAM User Access Keys
 
 ![Image of Toolchain](/docs/images/GitHubTepapaToolchain.png)
 
-## Current Limitations
+## Features
 
 Can be configued to:
 * Email a warning message to any IAM user account whose access keys are about to expire or have been expired, refer to the `email.user` section within the `/grunt/package.json` build configuration file. For this to work the IAM user account must use a valid email for the username.
