@@ -56,10 +56,13 @@ Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it c
 * Set `email.user.enable` to `True` if you want to send an individual email to each IAM user - containing the information about their Access Key status and whether a particular key is due to be expired or has been expired. Note: this only works for IAM accounts where the username is a valid email address. Email delivery is performed via AWS SES (make sure that SES has been configured correctly).
 * Update the `email.from` to be a valid email address.
 * Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
+* Update the `lambda.schedule.expression` to be a valid cron job expression for when you want the Lambda function automatically triggered.
 
 5. From within the `/grunt` directory - run `grunt bumpup && grunt deployLambda` to bump your release version number and perform a build/deploy of the Lambda function to the selected region
 
-## Invoke the Lambda Function manually from the commandline using the AWSCLI
+## Invoking the Lambda Function manually from the commandline using the AWSCLI
+
+This is useful for testing and performing adhoc runs
 
 Execute the lambda function by name, `AccessKeyRotation`, logging the output of the scan to a file called `scan.report.log`:
 
