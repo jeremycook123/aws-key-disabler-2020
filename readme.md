@@ -94,8 +94,9 @@ Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it c
 * Set `email.admin.enabled` to `True` if you want to send an email report to an administrator email address containing a full report of all IAM users and their Access Key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address.
 * Set `email.user.enabled` to `True` if you want to send an individual email to each IAM user - containing the information about their Access Key status and whether a particular key is due to be expired or has been expired.
 
-Configure `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the tag name `email.user.emailaddressconfig.tagname` for this options
-Configure `email.user.emailaddressconfig.type` to `username` for username based email addresses
+Configure one of the following options:
+* `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the tag name `email.user.emailaddressconfig.tagname` for this option.
+* `email.user.emailaddressconfig.type` to `username` for username based email addresses
 
 * Update the `email.from` to be a valid email address.
 * Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
