@@ -38,7 +38,7 @@ module.exports = function(grunt) {
             },
             {
               match: 'emailuser',
-              replacement: '<%= pkg.key_disabler.email.user.enabled %>'
+              replacement: '<%= pkg.key_disabler.email.user %>'
             },
             {
               match: 'maskaccesskeylength',

@@ -12,7 +12,7 @@ USERNAMES_SKIP = @@usernamesskip
 EMAIL_FROM = '@@emailfrom'
 EMAIL_ADMIN = ast.literal_eval('@@emailadmin')
 EMAIL_ADMIN_TO = '@@emailadminto'
-EMAIL_USER = ast.literal_eval('@@emailuser')
+EMAIL_USER_CONFIG = ast.literal_eval('@@emailuser')
 
 EMAIL_REGEX = re.compile(r'[^@]+@[^@]+\.[^@]+')
 
@@ -106,15 +106,15 @@ def send_completion_email(email_to, finished, deactivated_report):
 #Your AWS IAM Access Key (****************34MI) is due to expire in 1 week (7 days) - please rotate.
 #Your AWS IAM Access Key (****************34MI) is due to expire in 1 day (tomorrow) - please rotate.
 #Your AWS IAM Access Key (****************34MI) is now EXPIRED! Changing key to INACTIVE state - please rotate.
-def send_user_email(username, key, message):
-    if not EMAIL_REGEX.match(username):
+def send_user_email(email_to, key, message):
+    if not email_to or not EMAIL_REGEX.match(email_to):
         return
 
     client = boto3.client('ses', region_name=AWS_REGION)
     response = client.send_email(
         Source=EMAIL_FROM,
         Destination={
-            'ToAddresses': [username]
+            'ToAddresses': [email_to]
         },
         Message={
             'Subject': {
@@ -146,26 +146,56 @@ def lambda_handler(event, context):
 
     for user in data['Users']:
         userid = user['UserId']
-        username = user['UserName']
-        users[userid] = username
+        username = user['UserName']    
+        
+        usertags = client.list_user_tags(UserName=username)
+
+        users[userid] = { "username": username, "tags": usertags}
 
     users_report1 = []
     users_report2 = []
 
+    email_user_enabled = False
+    try:
+        email_user_enabled = EMAIL_USER_CONFIG["enabled"]
+    except:
+        pass
+
     for user in users:
+        email_user_address = None
+
         userindex += 1
         user_keys = []
 
         print '---------------------'
         print 'userindex %s' % userindex
         print 'user %s' % user
-        username = users[user]
+        username = users[user]["username"]
+        usertags = users[user]["tags"]
         print 'username %s' % username
+        print 'usertags %s' % usertags
 
         # check to see if the current user is a special service account
         if username in USERNAMES_SKIP:
             print 'detected special username (configured service account etc.) %s, key rotation skipped for this account...', username
             continue
+
+        # determine if USER based email address is configured
+        # can be either username based or tag based
+        if email_user_enabled:
+            try:
+                if EMAIL_USER_CONFIG["emailaddressconfig"]["type"] == "username":
+                    if EMAIL_REGEX.match(username):
+                        email_user_address = username
+                elif EMAIL_USER_CONFIG["emailaddressconfig"]["type"] == "tag":
+                    for tag in usertags["Tags"]:
+                        if tag["Key"] == EMAIL_USER_CONFIG["emailaddressconfig"]["tagname"]:
+                            tag_emailaddress = tag["Value"]
+                            if EMAIL_REGEX.match(tag_emailaddress):
+                                email_user_address = tag_emailaddress
+                                break
+            except Exception:
+                pass
 
         access_keys = client.list_access_keys(UserName=username)['AccessKeyMetadata']
         for access_key in access_keys:
@@ -198,17 +228,17 @@ def lambda_handler(event, context):
                 key_state = KEY_YOUNG_MESSAGE
             elif age == FIRST_WARNING_NUM_DAYS:
                 key_state = FIRST_WARNING_MESSAGE
-                if EMAIL_USER:
-                    send_user_email(username, masked_access_key_id, FIRST_WARNING_MESSAGE)
+                if email_user_enabled and email_user_address:
+                    send_user_email(email_user_address, masked_access_key_id, FIRST_WARNING_MESSAGE)
             elif age == LAST_WARNING_NUM_DAYS:
                 key_state = LAST_WARNING_MESSAGE
-                if EMAIL_USER:
-                    send_user_email(username, masked_access_key_id, LAST_WARNING_MESSAGE)
+                if email_user_enabled and email_user_address:
+                    send_user_email(email_user_address, masked_access_key_id, LAST_WARNING_MESSAGE)
             elif age >= KEY_MAX_AGE_IN_DAYS:
                 key_state = KEY_EXPIRED_MESSAGE
                 client.update_access_key(UserName=username, AccessKeyId=access_key_id, Status=KEY_STATE_INACTIVE)
-                if EMAIL_USER:
-                    send_user_email(username, masked_access_key_id, KEY_EXPIRED_MESSAGE)
+                if email_user_enabled and email_user_address:
+                    send_user_email(email_user_address, masked_access_key_id, KEY_EXPIRED_MESSAGE)
                 
                 if EMAIL_ADMIN:
                     send_deactivate_email(EMAIL_ADMIN_TO, username, age, masked_access_key_id)

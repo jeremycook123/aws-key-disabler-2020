@@ -1,6 +1,6 @@
 {
   "name": "key_disabler",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Lambda helper functions",
   "main": "Gruntfile.js",
   "dependencies": {
@@ -46,7 +46,11 @@
         "to": "admin@example.com"
       },
       "user": {
-        "enabled": "True"
+        "enabled": "True",
+        "emailaddressconfig": {
+          "type": "tag",
+          "tagname": "email"
+        }
       }
     },
     "iam": {
