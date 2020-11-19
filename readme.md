@@ -95,8 +95,8 @@ Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it c
 * Set `email.user.enabled` to `True` if you want to send an individual email to each IAM user - containing the information about their Access Key status and whether a particular key is due to be expired or has been expired.
 
 Configure one of the following options:
-* `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the tag name `email.user.emailaddressconfig.tagname` for this option.
-* `email.user.emailaddressconfig.type` to `username` for username based email addresses
+* Set `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the tag name `email.user.emailaddressconfig.tagname` for this option.
+* Set `email.user.emailaddressconfig.type` to `username` for username based email addresses
 
 * Update the `email.from` to be a valid email address.
 * Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
