@@ -64,6 +64,23 @@ def key_age(key_created_date):
 
     return days
 
+def send_invaliduseremailaddress_email(email_to, username, tagname):
+    client = boto3.client('ses', region_name=AWS_REGION)
+    response = client.send_email(
+        Source=EMAIL_FROM,
+        Destination={
+            'ToAddresses': [email_to]
+        },
+        Message={
+            'Subject': {
+                'Data': 'Missing Email Tag for User: %s' % username
+            },
+            'Body': {
+                'Html': {
+                'Data': 'The Tag [%s] belonging to User [%s] does not contain a valid email address. Please review and check within IAM.' % (tagname, username)
+                }
+            }
+        })
 
 def send_deactivate_email(email_to, username, age, access_key_id):
     client = boto3.client('ses', region_name=AWS_REGION)
@@ -188,12 +205,18 @@ def lambda_handler(event, context):
                     if EMAIL_REGEX.match(username):
                         email_user_address = username
                 elif EMAIL_USER_CONFIG["emailaddressconfig"]["type"] == "tag":
+                    validuseremailaddress = False
                     for tag in usertags["Tags"]:
                         if tag["Key"] == EMAIL_USER_CONFIG["emailaddressconfig"]["tagname"]:
                             tag_emailaddress = tag["Value"]
                             if EMAIL_REGEX.match(tag_emailaddress):
                                 email_user_address = tag_emailaddress
+                                validuseremailaddress = True
                                 break
+                    if not validuseremailaddress:
+                        if  EMAIL_USER_CONFIG["emailaddressconfig"]["reportmissingtag"]:
+                            send_invaliduseremailaddress_email(EMAIL_ADMIN_TO, username, EMAIL_USER_CONFIG["emailaddressconfig"]["tagname"])
+
             except Exception:
                 pass
 

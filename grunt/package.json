@@ -1,6 +1,6 @@
 {
   "name": "key_disabler",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Lambda helper functions",
   "main": "Gruntfile.js",
   "dependencies": {
@@ -49,7 +49,8 @@
         "enabled": "True",
         "emailaddressconfig": {
           "type": "tag",
-          "tagname": "email"
+          "tagname": "email",
+          "reportmissingtag": "True"
         }
       }
     },
