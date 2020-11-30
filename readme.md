@@ -97,6 +97,8 @@ Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it c
     * Configure one of the following options:
       * Set `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the **tag** name `email.user.emailaddressconfig.tagname` for this option.
       * Set `email.user.emailaddressconfig.type` to `username` for **username** based email addresses
+        * Set `email.user.emailaddressconfig.tagname` to be the name of the tag on the user account that contains the user's email address
+        * Set `email.user.emailaddressconfig.reportmissingtag` to `True` to send an email to the administrator if the tag `email.user.emailaddressconfig.tagname` does NOT contain a valid email address
 
   * Update the `email.from` to be a valid email address.
   * Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
