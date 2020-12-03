@@ -1,6 +1,6 @@
 {
   "name": "key_disabler",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Lambda helper functions",
   "main": "Gruntfile.js",
   "dependencies": {
@@ -21,6 +21,8 @@
   },
   "license": "ISC",
   "key_disabler": {
+    "aws_account_name": "Production",
+    "aws_account_id": "123456789012",
     "keystates": {
       "young": {
         "message": "is still valid"
@@ -41,7 +43,7 @@
     "email": {
       "from": "no-reply@example.com",
       "admin": {
-        "enabled": "False",
+        "enabled": "True",
         "to": "admin@example.com"
       },
       "user": {

@@ -1,5 +1,8 @@
 /*global module:false*/
 module.exports = function(grunt) {
+  var awsAccountName = grunt.option('awsaccountname') || '<%= pkg.key_disabler.aws_account_name %>';
+  var awsAccountId = grunt.option('awsaccountid') || '<%= pkg.key_disabler.aws_account_id %>';
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
@@ -15,6 +18,14 @@ module.exports = function(grunt) {
               match: 'buildversion',
               replacement: '<%= pkg.version %>'
             },
+            {
+              match: 'awsaccountname',
+              replacement: awsAccountName
+            },
+            {
+              match: 'awsaccountid',
+              replacement: awsAccountId
+            },            
             {
               match: 'deploymentregion',
               replacement: '<%= pkg.key_disabler.lambda.deployment_region %>'

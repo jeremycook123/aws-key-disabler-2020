@@ -106,6 +106,12 @@ aws events put-targets
 2. Navigate into the projects `grunt` folder: run `cd aws-key-disabler-2020/grunt`
 3. Setup the Grunt task runner, e.g. install its dependencies: run `npm install`
 4. Update the custom configuration within the `/grunt/package.json` file:
+  * Update `key_disabler.aws_account_name` to contain value which will be used in admin email subject header
+  * Update `key_disabler.aws_account_id` to contain value which will be used in admin email subject header
+
+  **Note**: Both of these settings can be overridden on the commandline when deploying:
+
+  `grunt deployLambda --awsaccountname=Staging --awsaccountid=123456789012`
 
   * Update `key_disabler.keystates.first_warning` and `key_disabler.keystates.last_warning` to the age that the key has to be in days to trigger an email warning.
   * Update `key_disabler.keystates.expired` to the age in days when the key expires. At this age the key is disabled.
