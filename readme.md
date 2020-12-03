@@ -35,7 +35,8 @@ Can be configued to:
         "enabled": "True",
         "emailaddressconfig": {
           "type": "tag",
-          "tagname": "email"
+          "tagname": "email",
+          "reportmissingtag": "True"
         }
       }
     },
