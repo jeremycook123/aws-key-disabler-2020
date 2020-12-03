@@ -81,14 +81,31 @@ Before you start make sure that your AWSCLI configuration has been correctly set
 aws iam get-user
 ``` 
 
-Make sure that this AWS IAM user has IAM admin *like* priviledges - so that it can create the various AWS resources (Lambda, IAM, CloudWatch etc.) used by this project.
+IAM permissions must be granted to the account which is used to perform the deployment (`grunt deployLambda`). The required permissions must at least allow the following AWS CLI commands to run, the fullset used for deployment and setup:
+
+```
+aws iam list-policies
+aws iam create-policy
+aws iam list-roles
+aws iam create-role
+aws iam list-attached-role-policies
+aws iam attach-role-policy
+aws lambda list-functions
+aws lambda delete-function
+aws iam get-role
+aws lambda create-function
+aws events list-rules
+aws events put-rule
+aws lambda add-permission
+aws sts get-caller-identity
+aws events put-targets
+```
 
 1. Grab yourself a copy of this repo `git clone https://github.com/jeremycook123/aws-key-disabler-2020`
 2. Navigate into the projects `grunt` folder: run `cd aws-key-disabler-2020/grunt`
 3. Setup the Grunt task runner, e.g. install its dependencies: run `npm install`
 4. Update the custom configuration within the `/grunt/package.json` file:
 
-  * Replace `key_disabler.aws_account_number` with your own AWS Account Id.
   * Update `key_disabler.keystates.first_warning` and `key_disabler.keystates.last_warning` to the age that the key has to be in days to trigger an email warning.
   * Update `key_disabler.keystates.expired` to the age in days when the key expires. At this age the key is disabled.
   * Set `email.admin.enabled` to `True` if you want to send an email report to an administrator email address containing a full report of all IAM users and their Access Key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address.

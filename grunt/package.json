@@ -1,6 +1,6 @@
 {
   "name": "key_disabler",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Lambda helper functions",
   "main": "Gruntfile.js",
   "dependencies": {
@@ -21,7 +21,6 @@
   },
   "license": "ISC",
   "key_disabler": {
-    "aws_account_number": "123456789012",
     "keystates": {
       "young": {
         "message": "is still valid"

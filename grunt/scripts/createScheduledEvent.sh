@@ -11,15 +11,13 @@ FUNCTION_NAME=$1
 SCHEDULE_RULE_NAME="$2"
 SCHEDULE_RULE_DESC="$3"
 SCHEDULE_EXPRESSION="$4"
-AWS_ACCOUNT_NUMBER=$5
-REGION=$6
+REGION=$5
 
 echo running script with inputs:
 echo FUNCTION_NAME=$FUNCTION_NAME
 echo SCHEDULE_RULE_NAME="${SCHEDULE_RULE_NAME}"
 echo SCHEDULE_RULE_DESC="${SCHEDULE_RULE_DESC}"
 echo SCHEDULE_EXPRESSION="${SCHEDULE_EXPRESSION}"
-echo AWS_ACCOUNT_NUMBER=$AWS_ACCOUNT_NUMBER
 echo REGION=$REGION
 echo
 
@@ -61,6 +59,8 @@ echo
 echo "STEP3: [${SCRIPT}]"
 echo binding new CRON schedule to new Lambda Function...
 echo
+
+AWS_ACCOUNT_NUMBER=`aws sts get-caller-identity --output text --query 'Account'`
 
 aws events put-targets \
   --rule $SCHEDULE_RULE_NAME \

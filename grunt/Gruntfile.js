@@ -1,6 +1,5 @@
 /*global module:false*/
 module.exports = function(grunt) {
-
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
@@ -100,11 +99,13 @@ module.exports = function(grunt) {
         cmd: './scripts/createLambdaFunction.sh AccessKeyRotationPackage.<%= pkg.version %>.zip <%= pkg.version %> "<%= pkg.key_disabler.lambda.function_name %>" "<%= pkg.key_disabler.iam.lambda.rolename %>" <%= pkg.key_disabler.lambda.timeout %> <%= pkg.key_disabler.lambda.memory %> <%= pkg.key_disabler.lambda.deployment_region %>'
       },
       create_scheduled_event: {
-        cmd: './scripts/createScheduledEvent.sh "<%=pkg.key_disabler.lambda.function_name %>" "<%= pkg.key_disabler.lambda.schedule.rulename %>" "<%= pkg.key_disabler.lambda.schedule.description %>" "<%= pkg.key_disabler.lambda.schedule.expression %>" <%= pkg.key_disabler.aws_account_number %> <%= pkg.key_disabler.lambda.deployment_region %>'
+        cmd: './scripts/createScheduledEvent.sh "<%=pkg.key_disabler.lambda.function_name %>" "<%= pkg.key_disabler.lambda.schedule.rulename %>" "<%= pkg.key_disabler.lambda.schedule.description %>" "<%= pkg.key_disabler.lambda.schedule.expression %>" <%= pkg.key_disabler.lambda.deployment_region %>'
       },
     }
 
   });
+
+  
 
   // Load NPM grunt tasks
   grunt.loadNpmTasks('grunt-contrib-watch');

@@ -46,7 +46,7 @@ echo LAMBDA_ACCESS_KEY_ROTATION_ROLEARN=$LAMBDA_ACCESS_KEY_ROTATION_ROLEARN
 
 LAMBDA_FUNCTION_ARN=$(aws lambda create-function \
                         --region $REGION \
-                        --runtime python2.7 \
+                        --runtime python3.8 \
                         --role $LAMBDA_ACCESS_KEY_ROTATION_ROLEARN \
                         --description "Deactivates old IAM Access Keys - ${BUILD_VERSION}" \
                         --timeout $LAMBDA_TIMEOUT \

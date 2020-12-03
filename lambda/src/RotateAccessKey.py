@@ -54,8 +54,6 @@ def key_age(key_created_date):
     tz_info = key_created_date.tzinfo
     age = datetime.now(tz_info) - key_created_date
 
-    print 'key age %s' % age
-
     key_age_str = str(age)
     if 'days' not in key_age_str:
         return 0
@@ -149,15 +147,14 @@ def mask_access_key(access_key):
 
 
 def lambda_handler(event, context):
-    print '*****************************'
-    print 'RotateAccessKey (%s): starting...' % BUILD_VERSION
-    print '*****************************'
+    print('*****************************')
+    print(f'RotateAccessKey v{BUILD_VERSION}: starting...')
+    print("*****************************")
     # Connect to AWS APIs
     client = boto3.client('iam')
 
     users = {}
     data = client.list_users()
-    print data
 
     userindex = 0
 
@@ -169,10 +166,15 @@ def lambda_handler(event, context):
 
         users[userid] = { "username": username, "tags": usertags}
 
-    users_report1 = []
-    users_report2 = []
+    users_report = []
+
+    users_list_first_warning = []
+    users_list_last_warning = [] 
+    users_list_keys_deactivated = []
+    users_list_email_tag_invalid = []
 
     email_user_enabled = False
+
     try:
         email_user_enabled = EMAIL_USER_CONFIG["enabled"]
     except:
@@ -184,17 +186,12 @@ def lambda_handler(event, context):
         userindex += 1
         user_keys = []
 
-        print '---------------------'
-        print 'userindex %s' % userindex
-        print 'user %s' % user
         username = users[user]["username"]
         usertags = users[user]["tags"]
-        print 'username %s' % username
-        print 'usertags %s' % usertags
 
         # check to see if the current user is a special service account
         if username in USERNAMES_SKIP:
-            print 'detected special username (configured service account etc.) %s, key rotation skipped for this account...', username
+            print(f'detected special username (configured service account etc.) {username}, key rotation skipped for this account...')
             continue
 
         # determine if USER based email address is configured
@@ -214,6 +211,7 @@ def lambda_handler(event, context):
                                 validuseremailaddress = True
                                 break
                     if not validuseremailaddress:
+                        users_list_email_tag_invalid.append(username)
                         if  EMAIL_USER_CONFIG["emailaddressconfig"]["reportmissingtag"]:
                             send_invaliduseremailaddress_email(EMAIL_ADMIN_TO, username, EMAIL_USER_CONFIG["emailaddressconfig"]["tagname"])
 
@@ -222,21 +220,15 @@ def lambda_handler(event, context):
 
         access_keys = client.list_access_keys(UserName=username)['AccessKeyMetadata']
         for access_key in access_keys:
-            print access_key
             access_key_id = access_key['AccessKeyId']
 
             masked_access_key_id = mask_access_key(access_key_id)
 
-            print 'AccessKeyId %s' % masked_access_key_id
-
             existing_key_status = access_key['Status']
-            print existing_key_status
 
             key_created_date = access_key['CreateDate']
-            print 'key_created_date %s' % key_created_date
 
             age = key_age(key_created_date)
-            print 'age %s' % age
 
             # we only need to examine the currently Active and about to expire keys
             if existing_key_status == "Inactive":
@@ -251,14 +243,17 @@ def lambda_handler(event, context):
                 key_state = KEY_YOUNG_MESSAGE
             elif age == FIRST_WARNING_NUM_DAYS:
                 key_state = FIRST_WARNING_MESSAGE
-                if email_user_enabled and email_user_address:
+                users_list_first_warning.append(username)
+                if email_user_enabled and email_user_address:                    
                     send_user_email(email_user_address, masked_access_key_id, FIRST_WARNING_MESSAGE)
             elif age == LAST_WARNING_NUM_DAYS:
                 key_state = LAST_WARNING_MESSAGE
+                users_list_last_warning.append(username)
                 if email_user_enabled and email_user_address:
                     send_user_email(email_user_address, masked_access_key_id, LAST_WARNING_MESSAGE)
             elif age >= KEY_MAX_AGE_IN_DAYS:
                 key_state = KEY_EXPIRED_MESSAGE
+                users_list_keys_deactivated.append(username)
                 client.update_access_key(UserName=username, AccessKeyId=access_key_id, Status=KEY_STATE_INACTIVE)
                 if email_user_enabled and email_user_address:
                     send_user_email(email_user_address, masked_access_key_id, KEY_EXPIRED_MESSAGE)
@@ -267,30 +262,27 @@ def lambda_handler(event, context):
                     send_deactivate_email(EMAIL_ADMIN_TO, username, age, masked_access_key_id)
                 
                 key_state_changed = True
-
-            print 'key_state %s' % key_state
-
+                                
             key_info = {'accesskeyid': masked_access_key_id, 'age': age, 'state': key_state, 'changed': key_state_changed}
             user_keys.append(key_info)
 
-        user_info_with_username = {'userid': userindex, 'username': username, 'keys': user_keys}
-        user_info_without_username = {'userid': userindex, 'keys': user_keys}
-
-        users_report1.append(user_info_with_username)
-        users_report2.append(user_info_without_username)
+        users_report.append({'userid': userindex, 'username': username, 'keys': user_keys})
 
     finished = str(datetime.now())
-    deactivated_report1 = {'reportdate': finished, 'users': users_report1}
-    print 'deactivated_report1 %s ' % deactivated_report1
+    deactivated_report = {'reportdate': finished, 'users': users_report}
 
     if EMAIL_ADMIN:
-        deactivated_report2 = {'reportdate': finished, 'users': users_report2}
-        send_completion_email(EMAIL_ADMIN_TO, finished, deactivated_report2)
+        send_completion_email(EMAIL_ADMIN_TO, finished, deactivated_report)
 
-    print '*****************************'
-    print 'Completed (%s): %s' % (BUILD_VERSION, finished)
-    print '*****************************'
-    return deactivated_report1
+    print(f'List of usernames notified with first warning: {users_list_first_warning}')
+    print(f'List of usernames notified with last warning: {users_list_last_warning}')
+    print(f'List of usernames whose keys were deactivated today: {users_list_keys_deactivated}')
+    print(f'List of usernames who dont have a valid email tag: {users_list_email_tag_invalid}')
+
+    print('*****************************')
+    print(f'Completed (v{BUILD_VERSION}): {finished}')
+    print('*****************************')
+    return deactivated_report
 
 #if __name__ == "__main__":
 #    event = 1
