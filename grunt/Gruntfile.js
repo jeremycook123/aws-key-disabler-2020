@@ -2,6 +2,7 @@
 module.exports = function(grunt) {
   var awsAccountName = grunt.option('awsaccountname') || '<%= pkg.key_disabler.aws_account_name %>';
   var awsAccountId = grunt.option('awsaccountid') || '<%= pkg.key_disabler.aws_account_id %>';
+  var skipUsernames = grunt.option('skipusers') || '<%= pkg.key_disabler.iam.skip_usernames %>';
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -31,8 +32,8 @@ module.exports = function(grunt) {
               replacement: '<%= pkg.key_disabler.lambda.deployment_region %>'
             },
             {
-              match: 'usernamesskip',
-              replacement: '<%= pkg.key_disabler.iam.usernames_skip %>'
+              match: 'skipusernames',
+              replacement: skipUsernames
             },
             {
               match: 'emailfrom',

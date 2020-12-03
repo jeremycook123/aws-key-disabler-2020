@@ -56,9 +56,9 @@
       }
     },
     "iam": {
-      "usernames_skip": [
-        "username1",
-        "username2"
+      "skip_usernames": [
+        "service-username1",
+        "service-username2"
       ],
       "lambda": {
         "rolename": "LambdaAccessKeyRotationRole",

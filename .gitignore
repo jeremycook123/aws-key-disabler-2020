@@ -3,3 +3,5 @@ lambda/build/*
 */node_modules/*
 
 releases/*
+
+*/scan.report.log

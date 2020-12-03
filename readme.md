@@ -1,5 +1,3 @@
-
-
 # AWS Lambda - IAM Access Key Disabler
 
 ![Image of KeyIcon](/docs/images/GitHubTepapaKeyIcon.jpg)
@@ -106,27 +104,28 @@ aws events put-targets
 2. Navigate into the projects `grunt` folder: run `cd aws-key-disabler-2020/grunt`
 3. Setup the Grunt task runner, e.g. install its dependencies: run `npm install`
 4. Update the custom configuration within the `/grunt/package.json` file:
+
   * Update `key_disabler.aws_account_name` to contain value which will be used in admin email subject header
   * Update `key_disabler.aws_account_id` to contain value which will be used in admin email subject header
 
-  **Note**: Both of these settings can be overridden on the commandline when deploying:
-
-  `grunt deployLambda --awsaccountname=Staging --awsaccountid=123456789012`
+  **Note**: Can be overridden at deployment time using `grunt deployLambda --awsaccountname=BLAHCORP --awsaccountid=123456789012`
 
   * Update `key_disabler.keystates.first_warning` and `key_disabler.keystates.last_warning` to the age that the key has to be in days to trigger an email warning.
   * Update `key_disabler.keystates.expired` to the age in days when the key expires. At this age the key is disabled.
-  * Set `email.admin.enabled` to `True` if you want to send an email report to an administrator email address containing a full report of all IAM users and their Access Key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `email.admin.to` to be a valid email address.
-  * Set `email.user.enabled` to `True` if you want to send an individual email to each IAM user - containing the information about their Access Key status and whether a particular key is due to be expired or has been expired.
+  * Set `key_disabler.email.admin.enabled` to `True` if you want to send an email report to an administrator email address containing a full report of all IAM users and their Access Key status. Email delivery is performed via AWS SES (make sure that it has been configured correctly). Configure `key_disabler.email.admin.to` to be a valid email address.
+  * Set `key_disabler.email.user.enabled` to `True` if you want to send an individual email to each IAM user - containing the information about their Access Key status and whether a particular key is due to be expired or has been expired.
 
     * Configure one of the following options:
-      * Set `email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the **tag** name `email.user.emailaddressconfig.tagname` for this option.
-      * Set `email.user.emailaddressconfig.type` to `username` for **username** based email addresses
-        * Set `email.user.emailaddressconfig.tagname` to be the name of the tag on the user account that contains the user's email address
-        * Set `email.user.emailaddressconfig.reportmissingtag` to `True` to send an email to the administrator if the tag `email.user.emailaddressconfig.tagname` does NOT contain a valid email address
+      * Set `key_disabler.email.user.emailaddressconfig.type` to `tag` for tag based email addresses - you also need to specify the **tag** name `key_disabler.email.user.emailaddressconfig.tagname` for this option.
+      * Set `key_disabler.email.user.emailaddressconfig.type` to `username` for **username** based email addresses
+        * Set `key_disabler.email.user.emailaddressconfig.tagname` to be the name of the tag on the user account that contains the user's email address
+        * Set `key_disabler.email.user.emailaddressconfig.reportmissingtag` to `True` to send an email to the administrator if the tag `key_disabler.email.user.emailaddressconfig.tagname` does NOT contain a valid email address
 
-  * Update the `email.from` to be a valid email address.
-  * Set the `lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
-  * Update the `lambda.schedule.expression` to be a valid cron job expression for when you want the Lambda function automatically triggered.
+  * Update `key_disabler.email.from` to be a valid email address.
+  * Set the `key_disabler.lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
+  * Update `key_disabler.lambda.schedule.expression` to be a valid cron job expression for when you want the Lambda function automatically triggered.
+
+  * Update `key_disabler.iam.skip_usernames` with a list of IAM usernames which should be skipped - used to specify special IAM accounts (service or system type accounts) which don't need key rotation. Can be overridden at deployment time using `grunt deployLambda --skipusers=sysuser1,sysuser2`
 
 5. From within the `/grunt` directory - run `grunt bumpup && grunt deployLambda` to bump your release version number and perform a build/deploy of the Lambda function to the selected region
 

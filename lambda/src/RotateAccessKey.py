@@ -6,11 +6,18 @@ import ast
 import re
 
 BUILD_VERSION = '@@buildversion'
-AWS_REGION = '@@deploymentregion'
-USERNAMES_SKIP = @@usernamesskip
 
+AWS_REGION = '@@deploymentregion'
 AWS_ACCOUNT_NAME = '@@awsaccountname'
 AWS_ACCOUNT_ID = '@@awsaccountid'
+
+SKIP_USERNAMES = '@@skipusernames'
+try:
+    #package.json via iam.skip_usernames
+    SKIP_USERNAMES = ast.literal_eval(SKIP_USERNAMES)
+except:
+    #commandline via --skipusers parameter
+    SKIP_USERNAMES = SKIP_USERNAMES.split(",")
 
 EMAIL_FROM = '@@emailfrom'
 EMAIL_ADMIN_ENABLED = ast.literal_eval('@@emailadmin')
@@ -169,7 +176,7 @@ def lambda_handler(event, context):
         usertags = users[user]["tags"]
 
         # check to see if the current user is a special service account
-        if username in USERNAMES_SKIP:
+        if username in SKIP_USERNAMES:
             print(f'detected special username (configured service account etc.) {username}, key rotation skipped for this account...')
             continue
 
