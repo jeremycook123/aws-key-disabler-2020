@@ -4,6 +4,7 @@ module.exports = function(grunt) {
   var awsAccountId = grunt.option('awsaccountid') || '<%= pkg.key_disabler.aws.account_id %>';
   var awsRegion = grunt.option('region') || '<%= pkg.key_disabler.lambda.aws.region %>';
   var skipUsernames = grunt.option('skipusers') || '<%= pkg.key_disabler.iam.skip_usernames %>';
+  var throttle = grunt.option('throttle') || '<%= pkg.key_disabler.lambda.throttle %>';
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -83,6 +84,10 @@ module.exports = function(grunt) {
             {
               match: 'key_young_message',
               replacement: '<%= pkg.key_disabler.keystates.young.message %>'
+            },
+            {
+              match: 'throttle',
+              replacement: throttle
             }
           ]
         },
@@ -117,8 +122,6 @@ module.exports = function(grunt) {
     }
 
   });
-
-  
 
   // Load NPM grunt tasks
   grunt.loadNpmTasks('grunt-contrib-watch');

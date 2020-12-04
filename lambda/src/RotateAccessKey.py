@@ -4,6 +4,7 @@ import dateutil.tz
 import json
 import ast
 import re
+import time
 
 BUILD_VERSION = '@@buildversion'
 
@@ -42,6 +43,12 @@ KEY_EXPIRED_MESSAGE = '@@key_expired_message'
 
 KEY_YOUNG_MESSAGE = '@@key_young_message'
 
+try:
+    THROTTLE = @@throttle
+    THROTTLE = THROTTLE / 1000
+except:
+    THROTTLE = 0
+
 # ==========================================================
 
 # Character length of an IAM Access Key
@@ -72,14 +79,14 @@ def key_age(key_created_date):
 
     return days
 
-def send_admin_invaliduseremailaddress_email(username, tagname):
-    subject = f'AWS IAM Access Key Rotation for Account: {AWS_ACCOUNT_NAME} / {AWS_ACCOUNT_ID} - Detected Missing Email Tag on User'
-    body = f'The tag "{tagname}" belonging to user "{username}" does not contain a valid email address. Please review and check within IAM.'
+def send_admin_invaliduseremailaddress_email(userlist):
+    subject = f'AWS IAM Access Key Rotation for Account: {AWS_ACCOUNT_NAME} / {AWS_ACCOUNT_ID} - Detected Missing/Invalid Email for Users Report'
+    body = f'The following report contains a list of users who do NOT appear to have a valid email address. Please review username and tags for each user within IAM.\n\n{userlist}'
     send_admin_email(subject, body)
 
-def send_admin_deactivate_email(username, age, masked_access_key_id):
-    subject = f'AWS IAM Access Key Rotation for Account: {AWS_ACCOUNT_NAME} / {AWS_ACCOUNT_ID} - Deactivation of Access Key'
-    body = f'The access key {masked_access_key_id} belonging to user "{username}" has been automatically deactivated due to it being {age} days old'
+def send_admin_deactivate_email(userlist):
+    subject = f'AWS IAM Access Key Rotation for Account: {AWS_ACCOUNT_NAME} / {AWS_ACCOUNT_ID} - Deactivation of Access Key for Users Report'
+    body = f'The following report contains a list of users who have had their access key automatically deactivated due to it being too old.\n\n{userlist}'
     send_admin_email(subject, body)
 
 def send_admin_completion_email(finished, deactivated_report):
@@ -110,25 +117,28 @@ def send_admin_email(subject, body):
 #Your AWS IAM Access Key (****************34MI) is due to expire in 1 day (tomorrow) - please rotate.
 #Your AWS IAM Access Key (****************34MI) is now EXPIRED! Changing key to INACTIVE state - please rotate.
 def send_user_email(email_to, key, message):
-    if not email_to or not EMAIL_REGEX.match(email_to):
-        return
+    try:
+        if not email_to or not EMAIL_REGEX.match(email_to):
+            return
 
-    client = boto3.client('ses', region_name=AWS_REGION)
-    response = client.send_email(
-        Source=EMAIL_FROM,
-        Destination={
-            'ToAddresses': [email_to]
-        },
-        Message={
-            'Subject': {
-                'Data': 'AWS IAM Access Key Rotation'
+        client = boto3.client('ses', region_name=AWS_REGION)
+        response = client.send_email(
+            Source=EMAIL_FROM,
+            Destination={
+                'ToAddresses': [email_to]
             },
-            'Body': {
-                'Html': {
-                'Data': f'Your AWS IAM Access Key {key} {message}.'
+            Message={
+                'Subject': {
+                    'Data': 'AWS IAM Access Key Rotation'
+                },
+                'Body': {
+                    'Html': {
+                    'Data': f'Your AWS IAM Access Key {key} {message}.'
+                    }
                 }
-            }
-        })
+            })
+    except:
+        pass
 
 def mask_access_key(access_key):
     return access_key[-(ACCESS_KEY_LENGTH-MASK_ACCESS_KEY_LENGTH):].rjust(len(access_key), "*")
@@ -204,9 +214,6 @@ def lambda_handler(event, context):
             except Exception:
                 pass
 
-        if EMAIL_ADMIN_ENABLED and EMAIL_USER_CONFIG["emailaddressconfig"]["reportmissingtag"] and not validuseremailaddress:
-            send_admin_invaliduseremailaddress_email(username, EMAIL_USER_CONFIG["emailaddressconfig"]["tagname"])
-
         access_keys = client.list_access_keys(UserName=username)['AccessKeyMetadata']
         for access_key in access_keys:
             access_key_id = access_key['AccessKeyId']
@@ -247,9 +254,6 @@ def lambda_handler(event, context):
                 if email_user_enabled and user_email_address:
                     send_user_email(user_email_address, masked_access_key_id, KEY_EXPIRED_MESSAGE)
                 
-                if EMAIL_ADMIN_ENABLED:
-                    send_admin_deactivate_email(username, age, masked_access_key_id)
-                
                 key_state_changed = True
                                 
             key_info = {'accesskeyid': masked_access_key_id, 'age': age, 'state': key_state, 'changed': key_state_changed}
@@ -257,11 +261,21 @@ def lambda_handler(event, context):
 
         users_report.append({'userid': userindex, 'username': username, 'keys': user_keys})
 
+        if THROTTLE > 0:
+            time.sleep(THROTTLE)
+
     finished = str(datetime.now())
     deactivated_report = {'reportdate': finished, 'users': users_report}
 
     if EMAIL_ADMIN_ENABLED:
-        send_admin_completion_email(finished, deactivated_report)
+        try:
+            send_admin_completion_email(finished, deactivated_report)
+            if len(users_list_keys_deactivated) > 0:
+                send_admin_deactivate_email(users_list_keys_deactivated)
+            if EMAIL_USER_CONFIG["emailaddressconfig"]["reportmissingtag"] and len(users_list_email_tag_invalid) > 0:
+                send_admin_invaliduseremailaddress_email(users_list_email_tag_invalid)
+        except:
+            pass
 
     print(f'List of usernames notified with first warning: {users_list_first_warning}')
     print(f'List of usernames notified with last warning: {users_list_last_warning}')
