@@ -1,6 +1,6 @@
 {
   "name": "key_disabler",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Lambda helper functions",
   "main": "Gruntfile.js",
   "dependencies": {
@@ -21,8 +21,11 @@
   },
   "license": "ISC",
   "key_disabler": {
-    "aws_account_name": "Production",
-    "aws_account_id": "123456789012",
+    "aws": {
+      "account_name": "Production",
+      "account_id": "123456789012",
+      "region": "us-east-1"
+    },
     "keystates": {
       "young": {
         "message": "is still valid"
@@ -69,7 +72,6 @@
       "function_name": "AccessKeyRotation",
       "memory": "128",
       "timeout": "60",
-      "deployment_region": "ap-southeast-2",
       "schedule": {
         "rulename": "EveryDay4amNZT",
         "description": "Runs every day at 4am NZT",

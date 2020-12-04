@@ -1,7 +1,8 @@
 /*global module:false*/
 module.exports = function(grunt) {
-  var awsAccountName = grunt.option('awsaccountname') || '<%= pkg.key_disabler.aws_account_name %>';
-  var awsAccountId = grunt.option('awsaccountid') || '<%= pkg.key_disabler.aws_account_id %>';
+  var awsAccountName = grunt.option('awsaccountname') || '<%= pkg.key_disabler.aws.account_name %>';
+  var awsAccountId = grunt.option('awsaccountid') || '<%= pkg.key_disabler.aws.account_id %>';
+  var awsRegion = grunt.option('region') || '<%= pkg.key_disabler.lambda.aws.region %>';
   var skipUsernames = grunt.option('skipusers') || '<%= pkg.key_disabler.iam.skip_usernames %>';
 
   grunt.initConfig({
@@ -29,7 +30,7 @@ module.exports = function(grunt) {
             },            
             {
               match: 'deploymentregion',
-              replacement: '<%= pkg.key_disabler.lambda.deployment_region %>'
+              replacement: awsRegion
             },
             {
               match: 'skipusernames',
@@ -101,17 +102,17 @@ module.exports = function(grunt) {
     },
 
     exec: {
-      create_lambda_policy: {
-        cmd: './scripts/createLambdaAccessKeyRotationPolicy.sh "<%= pkg.key_disabler.iam.lambda.policyname %>" "<%= pkg.key_disabler.iam.lambda.rolename %>" <%= pkg.key_disabler.lambda.deployment_region %>'
-      },
       package_lambda_function: {
         cmd: './scripts/createZipPackage.sh'
       },
+      create_lambda_policy: {
+        cmd: './scripts/createLambdaAccessKeyRotationPolicy.sh "<%= pkg.key_disabler.iam.lambda.policyname %>" "<%= pkg.key_disabler.iam.lambda.rolename %>" ' + awsRegion
+      },
       create_lambda_function: {
-        cmd: './scripts/createLambdaFunction.sh AccessKeyRotationPackage.<%= pkg.version %>.zip <%= pkg.version %> "<%= pkg.key_disabler.lambda.function_name %>" "<%= pkg.key_disabler.iam.lambda.rolename %>" <%= pkg.key_disabler.lambda.timeout %> <%= pkg.key_disabler.lambda.memory %> <%= pkg.key_disabler.lambda.deployment_region %>'
+        cmd: './scripts/createLambdaFunction.sh AccessKeyRotationPackage.<%= pkg.version %>.zip <%= pkg.version %> "<%= pkg.key_disabler.lambda.function_name %>" "<%= pkg.key_disabler.iam.lambda.rolename %>" <%= pkg.key_disabler.lambda.timeout %> <%= pkg.key_disabler.lambda.memory %> ' + awsRegion
       },
       create_scheduled_event: {
-        cmd: './scripts/createScheduledEvent.sh "<%=pkg.key_disabler.lambda.function_name %>" "<%= pkg.key_disabler.lambda.schedule.rulename %>" "<%= pkg.key_disabler.lambda.schedule.description %>" "<%= pkg.key_disabler.lambda.schedule.expression %>" <%= pkg.key_disabler.lambda.deployment_region %>'
+        cmd: './scripts/createScheduledEvent.sh "<%=pkg.key_disabler.lambda.function_name %>" "<%= pkg.key_disabler.lambda.schedule.rulename %>" "<%= pkg.key_disabler.lambda.schedule.description %>" "<%= pkg.key_disabler.lambda.schedule.expression %>" ' + awsRegion
       },
     }
 
