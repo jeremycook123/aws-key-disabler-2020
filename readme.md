@@ -68,7 +68,7 @@ This script requires the following tools to run.
 * Gruntjs installed http://gruntjs.com/ - tested with version `grunt-cli v1.3.2`
 * AWSCLI commandline tool installed https://aws.amazon.com/cli/ - tested with version `aws-cli/2.0.58`
 
-It also assumes that you have an existing AWS account with SES (email) enabled. SES usage requires that you have a domain verified and sandbox mode removed.
+**Note**: Setup assumes that you have an existing AWS account with SES (email) enabled. SES usage requires that you have a domain verified and sandbox mode removed.
 
 ## Installation Instructions
 
@@ -105,8 +105,9 @@ aws events put-targets
 3. Setup the Grunt task runner, e.g. install its dependencies: run `npm install`
 4. Update the custom configuration within the `/grunt/package.json` file:
 
-  * Update `key_disabler.aws_account_name` to contain value which will be used in admin email subject header
-  * Update `key_disabler.aws_account_id` to contain value which will be used in admin email subject header
+  * Update `key_disabler.aws.account_name` to contain name (metadata) of AWS account into which deployment will take place
+  * Update `key_disabler.aws.account_id` to contain AWS account into which deployment will take place
+  * Update `key_disabler.aws.region` to contain AWS region into which deployment will take place
 
   **Note**: Can be overridden at deployment time using `grunt deployLambda --awsaccountname=BLAHCORP --awsaccountid=123456789012`
 
@@ -122,7 +123,6 @@ aws events put-targets
         * Set `key_disabler.email.user.emailaddressconfig.reportmissingtag` to `True` to send an email to the administrator if the tag `key_disabler.email.user.emailaddressconfig.tagname` does NOT contain a valid email address
 
   * Update `key_disabler.email.from` to be a valid email address.
-  * Set the `key_disabler.lambda.deployment_region` to a region that supports Lambda and SES. Also ensure that the region has SES sandbox mode disabled.
   * Update `key_disabler.lambda.schedule.expression` to be a valid cron job expression for when you want the Lambda function automatically triggered.
 
   * Update `key_disabler.iam.skip_usernames` with a list of IAM usernames which should be skipped - used to specify special IAM accounts (service or system type accounts) which don't need key rotation. Can be overridden at deployment time using `grunt deployLambda --skipusers=sysuser1,sysuser2`
