@@ -90,8 +90,44 @@ def send_admin_deactivate_email(userlist):
     send_admin_email(subject, body)
 
 def send_admin_completion_email(finished, deactivated_report):
+    user_list = '<table cellspacing="4" cellpadding="4" border="0">'
+    for user in deactivated_report["users"]:
+        if len(user['keys']) > 0:
+            user_list += '<tr>'
+            user_list += '<td valign="top">'
+            user_list += f'User <b>{user["username"]}</b> has keys in the following state:'
+            user_list += '</td>'
+            user_list += '<td valign="top">'
+            user_list += '<table cellspacing="0" cellpadding="0" border="0">'
+            for key in user["keys"]:
+                user_list += '<tr><td>'
+                user_list += f'{key["accesskeyid"]}, age {key["age"]}, {key["state"]}'
+                user_list += '</td></tr>'
+            for key in user["keys"]:
+                user_list += '<tr><td>'
+                user_list += f'{key["accesskeyid"]}, age {key["age"]}, {key["state"]}'
+                user_list += '</td></tr>'
+            for key in user["keys"]:
+                user_list += '<tr><td>'
+                user_list += f'{key["accesskeyid"]}, age {key["age"]}, {key["state"]}'
+                user_list += '</td></tr>'
+            user_list += '</table>'
+            user_list += '</td>'
+            user_list += '</tr>'
+    user_list += '</table>'
+
     subject = f'AWS IAM Access Key Rotation for Account: {AWS_ACCOUNT_NAME} / {AWS_ACCOUNT_ID} - Completion Report'
-    body = f'AWS IAM Access Key Rotation Lambda Function (cron job) finished successfully at {finished}.\n\nDeactivation Report:\n\n{deactivated_report}'
+
+    body = f"""<html>
+    <head></head>
+    <body>
+    <h1>Deactivation Report</h1>
+    <p>AWS IAM Access Key Rotation Lambda Function (cron job) finished successfully.</p>
+    <hr>
+    {user_list}
+    </body>
+    </html>"""
+
     send_admin_email(subject, body)
 
 def send_admin_email(subject, body):
@@ -103,14 +139,16 @@ def send_admin_email(subject, body):
         },
         Message={
             'Subject': {
+                'Charset': 'UTF-8',
                 'Data': subject
             },
             'Body': {
                 'Html': {
-                'Data': body
+                    'Charset': 'UTF-8',
+                    'Data': body
                 }
             }
-        })    
+        })
 
 #Will send email containing one of the following messages:
 #Your AWS IAM Access Key (****************34MI) is due to expire in 1 week (7 days) - please rotate.
